@@ -1,0 +1,8 @@
+/venv/
+.gitignore
+.idea/.gitignore
+.idea/Data_Mining_20_04_21.iml
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
