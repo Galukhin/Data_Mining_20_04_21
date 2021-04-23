@@ -33,14 +33,8 @@ class Parse5ka:
     params = {
         "records_per_page": 20,
         "page": 1,
-        "category": None
+        "categories": None
     }
-    file_template = {"parent_group_name": None,
-                     "parent_group_code": None,
-                     "group_name": None,
-                     "group_code": None,
-                     "products": []
-                     }
 
     def __init__(self, url_cats: str, url_prods: str, save_path: Path):
         self.url_cats = url_cats
@@ -67,25 +61,34 @@ class Parse5ka:
         response = self._get_response(url_cats, headers=self.headers)
         data_parent_cats = response.json()
         for parent_category in data_parent_cats:
-            result = self.file_template.copy()
-            result["parent_group_name"] = parent_category['parent_group_name']
-            result["parent_group_code"] = parent_category['parent_group_code']
             url_child_cats = url_cats + parent_category['parent_group_code'] + '/'
             time.sleep(0.1)
             response = self._get_response(url_child_cats, headers=self.headers)
             data_child_cats = response.json()
+            result = {}
             if data_child_cats:
                 for child_category in data_child_cats:
+                    result.clear()
+                    result["parent_group_name"] = parent_category['parent_group_name']
+                    result["parent_group_code"] = parent_category['parent_group_code']
                     result["group_name"] = child_category['group_name']
                     result["group_code"] = child_category['group_code']
+                    result["products"] = []
                     params = self.params.copy()
                     params["categories"] = int(child_category['group_code'])
                     self._parse_prods(url_prods, params, result)
+                    yield result
             else:
+                result.clear()
+                result["parent_group_name"] = parent_category['parent_group_name']
+                result["parent_group_code"] = parent_category['parent_group_code']
+                result["group_name"] = None
+                result["group_code"] = None
+                result["products"] = []
                 params = self.params.copy()
                 params["categories"] = int(parent_category['parent_group_code'])
                 self._parse_prods(url_prods, params, result)
-            yield result
+                yield result
 
     def _parse_prods(self, url_prods: str, params: dict, result: dict):
         page = 1
