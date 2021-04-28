@@ -51,6 +51,7 @@ class Parse5ka:
 
     def _get_response(self, url, *args, **kwargs):
         while True:
+            print(url)
             response = requests.get(url, *args, **kwargs)
             if response.status_code == 200:
                 return response
@@ -73,29 +74,26 @@ class Parse5ka:
             time.sleep(0.1)
             response = self._get_response(url_child_cats, headers=self.headers)
             data_child_cats = response.json()
-            result = {}
             if data_child_cats:
                 for child_category in data_child_cats:
-                    result.clear()
+                    result = copy.deepcopy(self.dict_template)
                     result["parent_group_name"] = parent_category['parent_group_name']
                     result["parent_group_code"] = parent_category['parent_group_code']
                     result["group_name"] = child_category['group_name']
                     result["group_code"] = child_category['group_code']
-                    result["products"] = []
                     params = self.params.copy()
                     params["categories"] = int(child_category['group_code'])
                     self._parse_prods(url_prods, params, result)
+                    print(result["products"])
                     yield result
             else:
-                result.clear()
+                result = copy.deepcopy(self.dict_template)
                 result["parent_group_name"] = parent_category['parent_group_name']
                 result["parent_group_code"] = parent_category['parent_group_code']
-                result["group_name"] = None
-                result["group_code"] = None
-                result["products"] = []
                 params = self.params.copy()
                 params["categories"] = int(parent_category['parent_group_code'])
                 self._parse_prods(url_prods, params, result)
+                print(result["products"])
                 yield result
 
     def _parse_prods(self, url_prods: str, params: dict, result: dict):
