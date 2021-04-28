@@ -2,6 +2,7 @@ import json
 import time
 from pathlib import Path
 import requests
+import copy
 
 
 """
@@ -34,6 +35,13 @@ class Parse5ka:
         "records_per_page": 20,
         "page": 1,
         "categories": None
+    }
+    dict_template = {
+        "parent_group_name": None,
+        "parent_group_code": None,
+        "group_name": None,
+        "group_code": None,
+        "products": []
     }
 
     def __init__(self, url_cats: str, url_prods: str, save_path: Path):
