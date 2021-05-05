@@ -13,4 +13,5 @@ class GbParseItem(scrapy.Item):
     img_links = scrapy.Field()
     specifications = scrapy.Field()
     description = scrapy.Field()
-    author = scrapy.Field()
+    author_id = scrapy.Field()
+    author_phone = scrapy.Field()

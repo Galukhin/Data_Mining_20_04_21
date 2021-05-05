@@ -1,5 +1,6 @@
 import scrapy
 import re
+from base64 import b64decode
 from gb_parse.items import GbParseItem
 
 
@@ -46,7 +47,8 @@ class AutoyoulaSpider(scrapy.Spider):
         data["specifications"] = specifications_dict
         data["description"] = response.css(".AdvertCard_descriptionWrap__17EU3 "
                                            ".AdvertCard_descriptionInner__KnuRi::text").extract_first()
-        data["author"] = AutoyoulaSpider.get_author_id(response)
+        data["author_id"] = AutoyoulaSpider.get_author_id(response)
+        data["author_phone"] = AutoyoulaSpider.get_author_phone(response)
         return data
 
     @staticmethod
@@ -62,5 +64,18 @@ class AutoyoulaSpider(scrapy.Spider):
                         if result
                         else None
                     )
+            except TypeError:
+                pass
+
+    @staticmethod
+    def get_author_phone(resp):
+        marker = "window.transitState = decodeURIComponent"
+        for script in resp.css("script"):
+            try:
+                if marker in script.css("::text").extract_first():
+                    re_pattern = re.compile(r"phone%22%2C%22([a-zA-Z|\d]+)Xw%3D%3D%22%2C%22time")
+                    result = re.findall(re_pattern, script.css("::text").extract_first())
+                    result = b64decode(b64decode(result[0])).decode('UTF-8')
+                    return result
             except TypeError:
                 pass
