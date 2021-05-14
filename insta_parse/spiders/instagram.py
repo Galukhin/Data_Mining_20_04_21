@@ -79,7 +79,7 @@ class InstagramSpider(scrapy.Spider):
                 callback=self.pagination_follow,
                 formdata=formdata,
                 headers={"X-CSRFToken": token, "X-IG-App-ID": self.ig_app_id},
-                meta={'token': token, 'tag_name': tag_name, 'type_post': type_post}
+                meta={'token': token, 'tag_name': tag_name, 'type_post': type_post},
             )
 
     def pagination_follow(self, response):
